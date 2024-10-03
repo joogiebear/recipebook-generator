@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Book Config Generator</title>
+    <!-- Add this script to set dark mode before React mounts -->
+    <script>
+      (function () {
+        // Check localStorage for the theme
+        const storedTheme = localStorage.getItem("theme");
+        if (storedTheme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else if (storedTheme === "light") {
+          document.documentElement.classList.remove("dark");
+        } else {
+          // If no preference stored, follow the system preference
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="%PUBLIC_URL%/tailwind.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
