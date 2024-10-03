@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import KnowledgeBase from "./KnowledgeBase";
+import Footer from "./Footer"; // Import Footer Component
 import { saveAs } from "file-saver"; // for file downloads
 import YAML from "yaml"; // for YAML generation
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid'; // Correct Heroicons v2 import
@@ -173,7 +174,7 @@ function App() {
   };
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       {/* Header with dark/light mode toggle */}
       <header className="p-4 flex justify-between bg-gray-200 dark:bg-gray-800 dark:text-white">
         <h1 className="text-2xl font-bold">Recipe Book Config Generator</h1>
@@ -189,98 +190,103 @@ function App() {
         </button>
       </header>
 
-      {/* Routes for main generator and knowledgebase */}
-      <Routes>
-        {/* Main generator route */}
-        <Route
-          path="/"
-          element={
-            <div className="p-8 bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
-              <div className="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow-md">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Default Category:
-                </label>
-                <input
-                  type="text"
-                  value={defaultCategory}
-                  onChange={(e) => setDefaultCategory(e.target.value)}
-                  className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                />
+      {/* Main Content (using flex-grow to push footer to the bottom when content is short) */}
+      <main className="flex-grow">
+        <Routes>
+          {/* Main generator route */}
+          <Route
+            path="/"
+            element={
+              <div className="p-8 bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+                <div className="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow-md">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Default Category:
+                  </label>
+                  <input
+                    type="text"
+                    value={defaultCategory}
+                    onChange={(e) => setDefaultCategory(e.target.value)}
+                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                  />
 
-                {categories.map((category, index) => (
-                  <div
-                    key={index}
-                    className="mt-6 border p-4 rounded bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                  {categories.map((category, index) => (
+                    <div
+                      key={index}
+                      className="mt-6 border p-4 rounded bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    >
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Category Name:
+                      </label>
+                      <input
+                        type="text"
+                        value={category.name}
+                        onChange={(e) =>
+                          handleCategoryChange(index, "name", e.target.value)
+                        }
+                        className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                      />
+
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-4">
+                        Category Icon:
+                      </label>
+                      <input
+                        type="text"
+                        value={category.icon}
+                        onChange={(e) =>
+                          handleCategoryChange(index, "icon", e.target.value)
+                        }
+                        className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                        placeholder="e.g. golden_hoe"
+                      />
+
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-4">
+                        Items (one per line):
+                      </label>
+                      <textarea
+                        value={category.items}
+                        onChange={(e) =>
+                          handleCategoryChange(index, "items", e.target.value)
+                        }
+                        rows="4"
+                        className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                        placeholder="e.g. ecoitems:enchanted_carrot&#10;ecoitems:enchanted_wheat"
+                      ></textarea>
+                    </div>
+                  ))}
+
+                  <button
+                    onClick={addCategory}
+                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
                   >
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Category Name:
-                    </label>
-                    <input
-                      type="text"
-                      value={category.name}
-                      onChange={(e) =>
-                        handleCategoryChange(index, "name", e.target.value)
-                      }
-                      className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                    />
+                    Add Category
+                  </button>
 
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-4">
-                      Category Icon:
-                    </label>
-                    <input
-                      type="text"
-                      value={category.icon}
-                      onChange={(e) =>
-                        handleCategoryChange(index, "icon", e.target.value)
-                      }
-                      className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                      placeholder="e.g. golden_hoe"
-                    />
-
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-4">
-                      Items (one per line):
-                    </label>
-                    <textarea
-                      value={category.items}
-                      onChange={(e) =>
-                        handleCategoryChange(index, "items", e.target.value)
-                      }
-                      rows="4"
-                      className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                      placeholder="e.g. ecoitems:enchanted_carrot&#10;ecoitems:enchanted_wheat"
-                    ></textarea>
+                  <button
+                    onClick={handleDownload}
+                    className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded w-full"
+                  >
+                    Generate Config
+                  </button>
+                  <div className="mt-4 text-center">
+                    <Link
+                      to="/knowledgebase"
+                      className="text-blue-500 dark:text-blue-300 hover:underline"
+                    >
+                      Visit the Knowledge Base
+                    </Link>
                   </div>
-                ))}
-
-                <button
-                  onClick={addCategory}
-                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  Add Category
-                </button>
-
-                <button
-                  onClick={handleDownload}
-                  className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded w-full"
-                >
-                  Generate Config
-                </button>
-                <div className="mt-4 text-center">
-                  <Link
-                    to="/knowledgebase"
-                    className="text-blue-500 dark:text-blue-300 hover:underline"
-                  >
-                    Visit the Knowledge Base
-                  </Link>
                 </div>
               </div>
-            </div>
-          }
-        />
-        {/* Knowledge base route */}
-        <Route path="/knowledgebase" element={<KnowledgeBase />} />
-      </Routes>
-    </>
+            }
+          />
+          {/* Knowledge base route */}
+          <Route path="/knowledgebase" element={<KnowledgeBase />} />
+        </Routes>
+      </main>
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }
 
